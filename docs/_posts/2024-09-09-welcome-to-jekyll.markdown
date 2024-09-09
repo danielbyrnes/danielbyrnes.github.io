@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Welcome to Jekyll!"
+title:  "Experimenting with Central Limit Theorem"
 date:   2024-09-09 15:27:43 -0500
 categories: jekyll update
 ---
@@ -14,12 +14,38 @@ Where `YEAR` is a four-digit number, `MONTH` and `DAY` are both two-digit number
 
 Jekyll also offers powerful support for code snippets:
 
-{% highlight ruby %}
-def print_hi(name)
-  puts "Hi, #{name}"
-end
-print_hi('Tom')
-#=> prints 'Hi, Tom' to STDOUT.
+{% highlight C++ %}
+#pragma once
+
+#include <random>
+
+namespace stats {
+// Samples from some statistical distribution
+template <typename T>
+class Sampler {
+    public:
+        Sampler(const T mu);
+
+        // Generates a sample of n elements from the distribution
+        std::vector<T> gen(size_t n);
+
+    private:
+        std::poisson_distribution<T> distribution_;
+        std::mt19937 gen_;
+};
+
+template <typename T>
+Sampler<T>::Sampler(const T mu) : distribution_(mu), gen_((std::random_device())()) {}
+
+template <typename T>
+std::vector<T> Sampler<T>::gen(size_t n) {
+    std::vector<T> samples;
+    for (size_t i = 0; i < n; ++i) {
+        samples.push_back(distribution_(gen_));
+    }
+    return samples;
+}
+}
 {% endhighlight %}
 
 Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
