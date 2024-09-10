@@ -4,7 +4,7 @@ title:  "Experimenting with Central Limit Theorem"
 date:   2024-09-09 15:27:43 -0500
 categories: jekyll update
 ---
-This is a little demo of the Central Limit Theorem ([CLT][clt]). Simply put, the Central Limit Theorem says that under appropriate conditions the distribution of the sample mean converges to the normal distribution as the size of the sample increases. Given some probability distribution (not necessarily the Normal Distribution), and collect a sufficient number of samples (sources say at minimum 30). The sample mean is defined as the average of this sample population. Repeating this procedure 
+This is a little demo of the Central Limit Theorem (CLT). Simply put, the Central Limit Theorem says that under appropriate conditions the distribution of the sample mean converges to the normal distribution as the size of the sample increases. Given some probability distribution (not necessarily the Normal Distribution), and collect a sufficient number of samples (sources say at minimum 30). The sample mean is defined as the average of this sample population. Repeating this procedure 
 many times, you'll notice that the distribution of the sample means is normally distributed.
 
 TODO: insert latex of formal statement
