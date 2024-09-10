@@ -8,7 +8,6 @@ This is a little demo of the Central Limit Theorem ([CLT][clt]). Simply put, the
 many times, you'll notice that the distribution of the sample means is normally distributed.
 
 TODO: insert latex of formal statement
-$$ \nabla_\boldsymbol{x} J(\boldsymbol{x}) $$
 
 First we'll create a class that samples from some statistical distribution:
 {% highlight C++ %}
@@ -51,7 +50,7 @@ std::vector<T> Sampler<T>::gen(size_t n) {
 
 Check out the [Jekyll docs][jekyll-docs] for more info on how to get the most out of Jekyll. File all bugs/feature requests at [Jekyll’s GitHub repo][jekyll-gh]. If you have questions, you can ask them on [Jekyll Talk][jekyll-talk].
 
-[clt]: https://en.wikipedia.org/wiki/Central_limit_theorem
+[clt]:         https://en.wikipedia.org/wiki/Central_limit_theorem
 [jekyll-docs]: https://jekyllrb.com/docs/home
 [jekyll-gh]:   https://github.com/jekyll/jekyll
 [jekyll-talk]: https://talk.jekyllrb.com/
