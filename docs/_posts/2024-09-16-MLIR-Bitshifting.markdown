@@ -11,10 +11,10 @@ Suppose you wanted to write an MLIR program that takes as input some code with t
 ```
 module  {
   func.func @main(%arg0: i32, %arg1: i32) -> i32 {
-    %c4_i32 = arith.constant 8 : i32
-    %c16_i32 = arith.constant 12 : i32
-    %0 = arith.shli %arg0, %c4_i32 : i32
-    %1 = arith.shli %0, %c16_i32 : i32
+    %c8_i32 = arith.constant 8 : i32
+    %c12_i32 = arith.constant 12 : i32
+    %0 = arith.shli %arg0, %c8_i32 : i32
+    %1 = arith.shli %0, %c20_i32 : i32
     return %1 : i32
   }
 }
