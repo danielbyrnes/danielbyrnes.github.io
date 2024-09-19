@@ -7,9 +7,10 @@ categories: jekyll update
 This is a little demo of the Central Limit Theorem ([CLT][clt]). Simply put, the Central Limit Theorem says that under appropriate conditions the distribution of the sample mean converges to the normal distribution as the size of the sample increases. Given some probability distribution (not necessarily the Normal Distribution), and collect a sufficient number of samples (sources say at minimum 30). The sample mean is defined as the average of this sample population. Repeating this procedure 
 many times, you'll notice that the distribution of the sample means is normally distributed.
 
-TODO: insert latex of formal statement?
+The formal statement:
+![CLT](/images/CLT_statement.png)
 
-First we'll create a class that samples from some statistical distribution:
+First we'll create a class that samples from some statistical distribution (Poisson distribution in this case):
 {% highlight C++ %}
 #pragma once
 
@@ -71,5 +72,6 @@ int main () {
 
 Running the simulation and plotting the results with Python we get something like:
 ![CLT](/images/simulation_results.png)
+Notice that for large sample sizes the histograms seem to be modeled very well by the standard normal distribution.
 
 [clt]:         https://en.wikipedia.org/wiki/Central_limit_theorem
