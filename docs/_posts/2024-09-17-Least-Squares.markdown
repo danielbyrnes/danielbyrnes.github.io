@@ -4,6 +4,7 @@ title:  "Line Fitting with Least Squares"
 date:   2024-09-17 20:07:43 -0500
 categories: jekyll update
 ---
+{% include mathjax.html %}
 
 This post illustrates using the method of least squares ([LS][ls-gtech]) to fit a line to some noisy data.
 Given a linear system $Ax = b$, the method of least squares generates a solution that minimizes the sum of square differences of $b - Ax$, also called the residuals.
