@@ -13,7 +13,9 @@ Given a linear system $Ax = b$, the method of least squares generates a solution
 
 We will start with Ordinary Least Squares (OLS), where we hope to fit a linear model to some data and make some assumptions about sample independence. Consider modeling a linear process 
 
-$$ y_i = m \cdot x_i + b + \epsilon $$
+$$
+y_i = m \cdot x_i + b + \epsilon
+$$
 
 where $\epsilon$ is some normally distributed noise that captures measurement and model error.
 Ignoring the error term for now, we can stack the observations of our dependent and independent variables as follows
