@@ -4,7 +4,7 @@ title:  "Line Fitting with Least Squares"
 date:   2024-09-17 20:07:43 -0500
 categories: jekyll update
 ---
-{% include mathjax.html %}
+{% include_relative _includes/mathjax.html %}
 
 This post illustrates using the method of least squares ([LS][ls-gtech]) to fit a line to some noisy data.
 Given a linear system $Ax = b$, the method of least squares generates a solution that minimizes the sum of square differences of $b - Ax$, also called the residuals.
@@ -12,7 +12,9 @@ Given a linear system $Ax = b$, the method of least squares generates a solution
 ## Ordinary Least Squares
 
 We will start with Ordinary Least Squares (OLS), where we hope to fit a linear model to some data and make some assumptions about sample independence. Consider modeling a linear process 
+
 $$ y_i = m \cdot x_i + b + \epsilon $$
+
 where $\epsilon$ is some normally distributed noise that captures measurement and model error.
 Ignoring the error term for now, we can stack the observations of our dependent and independent variables as follows
 
@@ -34,7 +36,7 @@ m
 \end{bmatrix}
 $$
 
-Denoting the data matrix (containing the $x_i$s) as $X$ and the observations as vector $y$, this expression can be re-written as
+Denoting the data matrix (containing the $x_i$'s) as $X$ and the observations as vector $y$, this expression can be re-written as
 
 $$ 
 y = X
