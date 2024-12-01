@@ -172,7 +172,7 @@ This problem can be solved using the SVD of $A$, as seen above. If the smallest 
 
 ## Up Next
 
-Next we will consider fitting a model to non-linear data in this post about [Nonlinear Least Squares]({% post_url 2024-11-24-Nonlinear-Least-Squares %}).
+Next we will consider fitting a model to non-linear data in this post about [Nonlinear Least Squares]({% post_url 2024-12-01-Nonlinear-Least-Squares %}).
 
 [ls-gtech]: https://textbooks.math.gatech.edu/ila/least-squares.html
 [1]: https://personal.utdallas.edu/~scniu/OPRE-6301/documents/Estimation.pdf
