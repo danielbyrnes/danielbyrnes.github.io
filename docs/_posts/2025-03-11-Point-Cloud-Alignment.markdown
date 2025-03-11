@@ -90,9 +90,35 @@ double AngleBetweenRotations(const Eigen::Matrix3d& Ra, const Eigen::Matrix3d& R
 }
 {% endhighlight %}
 
+We can test our alignment method using synthetic data. This snippet here generates 10 random points
+(a $3\times10$ matrix where each column is a point), and a copy to perturb. The copy point cloud is rotated about some randomly generated unit vector and then corrupted with noise. 
+We can examine the error by finding the angle between our estimated rotation and the true rotation. We do this incrementally, increasingly rotating more about the same axis to see if there's a relationship between the quality of our estimate and the magnitude of the initial orientation between the point clouds.
+{% highlight C++ %}
+  Perturbation perturber(0.0, 0.1, 1.0); 
+  MatrixXd A = MatrixXd::Random(3,10);
+  Eigen::Vector3d u = Eigen::Vector3d::Random();
+  for (double theta = 0.1; theta < 0.4; theta += 0.05) {
+    // Rotate m and add noise
+    Eigen::Matrix3d R = RodriguesRotation(u.normalized(), theta);
+    MatrixXd Aprime = (R * A).transpose();
+    perturber.Corrupt(Aprime);
+    // Estimate rotation between the point clouds
+    MatrixXd R_Aprime_to_A = EstimateOrientation(A, Aprime.transpose());
+    // Find error angle between estimated and GT rotations
+    double angle_radians = AngleBetweenRotations(R, R_Aprime_to_A.transpose(), false);
+  }
+{% endhighlight %}
+
+You will notice that the error in alignment is within the bounds of the added noise, but doesn't increase
+as the orientation offset between the point clouds changes. This gives us confidence that our method should be robust to the magnitude of orientation offset between the two point clouds we want to align, assuming we have correct correspondences.
+
+## Scaling Up (Armadillo Test)
+![PLY](/images/armadillos/armadillo_ply.png){:height="360px" width="320px"} ![PC](/images/armadillos/armadillo_view_3.png){:height="400px" width="400px"} 
+*<medium>(Left) PLY mesh of Armadillo (Right) Subsampled armadillo point clouds, where one of them has been rotated 30 degrees about the x-axis. </medium>*
+
 We're going to test the point cloud alignment on the armadillo dataset found [here][armadillo]. After generating a rotated and perturbed copy of the point cloud, we'll estimate the orientation that best aligns the two. One issue is that the armadillo point cloud is huge, it has 8648 points! The matrix transpose and multiplication in `EstimateOrientation` alone will be major bottlenecks for making much progress here. Luckily there's no need to use all the points to estimate the orientation. 
 
-Instead we can just sample a small number of correspondences from the armadillos to estimate the orientation. But some correspondences are better than others, given that one of the armadillo point clouds has been corrupted with a small amount of noise. To handle this we can estimate the orientation using a subsample of the correspondences, and then evaluate the quality of the alignment on the entire point cloud. So in short, we can estimate using a subset of our data and then run a much quicker evaluation using all of the data available. This can be done repeatedly such that we'll choose the rotation estimate that best aligns the entire point clouds. This is essentially the [RANSAC][ransac] algorithm for robustly estimating a model given noisy or erroneous data. This step is especially crucial when we also need to estimate the correspondences in full ICP.
+Instead we can just sample a small number of correspondences from the armadillos to estimate the orientation. But some correspondences are better than others, given that one of the armadillo point clouds has been corrupted with a small amount of noise. To handle this we can estimate the orientation using a subsample of the correspondences, and then evaluate the quality of the alignment on the entire point cloud. So in short, we can estimate using a subset of our data and then run a much quicker evaluation using all of the data available. This can be done repeatedly such that we'll choose the rotation estimate that best aligns the entire point cloud. This is essentially the [RANSAC][ransac] algorithm for robustly estimating a model given noisy or erroneous data. This step is especially crucial when we also need to estimate the correspondences in full ICP.
 
 We will use this utility class to help us perturb (corrupt) some percentage of the point cloud with some level of error 
 
@@ -135,14 +161,20 @@ Now we can load our armadillo point clouds and repeatedly generate random sample
 {% highlight C++ %}
   MatrixXd pc = LoadPointCloud(pc_path); // Path to the armadillo point cloud
   MatrixXd pc_prime = LoadPointCloud(pc_prime_path); // Path to a rotated copy of the armadillo
+    
+  // Corrupt (perturb) the second point cloud with 
+  // some normally distributed noise.
   Perturbation perturber(0.0, 0.3, 0.6);
   double corruption_error = perturber.Corrupt(pc_prime);
+
+  // Number of correspondences used to estimate orientation.
   size_t subsample_size = 10;
   MatrixXd sub_pc(3, subsample_size);
   MatrixXd sub_pc_prime(3, subsample_size);
   std::list<size_t> indices(subsample_size);
   std::iota(indices.begin(), indices.end(), 0);
 
+  // Setup the random index generator.
   std::random_device rd;
   std::mt19937 gen(rd());
   std::uniform_int_distribution<> distrib(0, pc.rows());
@@ -182,6 +214,13 @@ Now we can load our armadillo point clouds and repeatedly generate random sample
   }
 {% endhighlight %}
 
+![SIMULATION](/images/armadillos/ransac_error.png)
+*<medium>Result of RANSAC simulation, where for each trial a subset of correspondences were used
+to estimate the orientation, and a global alignment metric was computed. In this simulation the total 
+amount of noise added was 0.138387, and the orientation estimate with the lowest error was 29.9908&deg; with an error of 0.143134. </medium>*
+
+## Future Work
+In this post we considered the case where we are given the point correspondences we want to align. Full blown ICP estimates both the correspondences AND the orientation to align them. We can compute the correspondences using [Nearest Neighbor Search]({% post_url 2024-11-17-Nearest-Neighbor %}).
 
 [procrustes]: https://simonensemble.github.io/posts/2018-10-27-orthogonal-procrustes/
 [ortho_transform]: https://winvector.github.io/xDrift/orthApprox.pdf 
