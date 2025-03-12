@@ -48,7 +48,7 @@ $$
 
 is maximized. 
 
-Remembering that the trace of a product of matricies is invariant to product permutations, this is equivalent to maximizing $Tr(RNM^T)$, where $NM^T$ is a $3 \times 3$ matrix. Looking at the SVD of this matrix $$NM^T = U \Sigma V^T$$ we can work out that the value of $R$ that minimizes $E$ is $R = VU^T$.
+Remembering that the trace of a product of matricies is invariant to product permutations, this is equivalent to maximizing $Tr(RNM^T)$, where $NM^T$ is a $3 \times 3$ matrix. Looking at the SVD of this matrix $NM^T = U \Sigma V^T$ we can work out that the value of $R$ that minimizes $E$ is $R = VU^T$.
 
 # Implementation
 
