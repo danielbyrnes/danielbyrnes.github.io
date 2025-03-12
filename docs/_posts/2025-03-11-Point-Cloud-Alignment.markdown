@@ -34,10 +34,10 @@ Then expaning the error metric above we have that
 
 $$
 E = \sum\limits_i (p_i - Rq_i)^T (p_i - Rq_i)
+= \sum \limits_i ||p_i||_2^2 + ||q_i||_2^2 - 2 p_i^T Rq_i
 $$
 
-and after distributing factors we see that this expression to equal to 
-$$\sum \limits_i ||p_i||_2 + ||q_i||_2 - 2 p_i^T Rq_i$$.
+after distributing factors.
 
 Minimizing $E$ is equivalent to maximizing $p_i^T R q_i$ $\forall i$. All of these terms are found along the diagonal of 
 $M^T R N$, and so we want to find $R$ such that 
@@ -48,7 +48,7 @@ $$
 
 is maximized. 
 
-Remembering that the trace of a product of matricies is invariant to product permutations, this is equivalent to maximizing $Tr(RNM^T)$, where $NM^T$ is a $3 \times 3$ matrix. Looking at the SVD of this matrix $$ NM^T = U \Sigma V^T $$ we can work out that the value of $R$ that minimizes $E$ is $R = VU^T$.
+Remembering that the trace of a product of matricies is invariant to product permutations, this is equivalent to maximizing $Tr(RNM^T)$, where $NM^T$ is a $3 \times 3$ matrix. Looking at the SVD of this matrix $$NM^T = U \Sigma V^T$$ we can work out that the value of $R$ that minimizes $E$ is $R = VU^T$.
 
 # Implementation
 
