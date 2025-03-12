@@ -63,7 +63,7 @@ MatrixXd EstimateOrientation(const MatrixXd& A, const MatrixXd& B) {
 
 To simulate test data we will rotate the point cloud about some randomly generated axis by some angle $\theta$. We'll use the Rodrigues formula to compute the rotation about axis $u$ by angle $\theta$: 
 
-$$R(u,\theta) = cos \theta I + sin \theta \lfloor u \rfloor + (1 - cos \theta) u u^T$$ 
+$$R(u,\theta) = \cos \theta I + \sin \theta \lfloor u \rfloor + (1 - \cos \theta) u u^T$$ 
 
 {% highlight C++ %}
 MatrixXd RodriguesRotation(const Vector3d& u, double theta) {
