@@ -84,7 +84,26 @@ def run_model_fitting(sample_size, beta, beta_true):
     return {'sample_size': sample_size, 'iters': iters, 'beta': [beta]}
 {% endhighlight %}
 
-Where `special_function()` returns the ground truth model evaluation, `approximate_function()` evaluates the polynomial using the estimated parameters, and `Jacobian()` returns the model Jacobian. This plot shows the result of model fitting for various sample data sizes (number of observations) after convergence.
+Where `special_function()` returns the ground truth model evaluation, `approximate_function()` evaluates the polynomial using the estimated parameters, and `Jacobian()` returns the model Jacobian: 
+{% highlight Python %}
+def special_function(x):
+    x2 = x * x
+    x3 = x * x2
+    return  40 * x3 + 2 * x2 + 0.33 * x + 12
+
+def approximate_function(beta, x):
+    x2 = x * x
+    x3 = x * x2
+    return beta[0] * x3 + beta[1] * x2 + beta[2] * x + beta[3]
+
+def Jacobian(x):
+    x2 = x * x
+    x3 = x * x2
+    return np.array([x3, x2, x, 1])
+{% endhighlight %}
+
+
+This plot shows the result of model fitting for various sample data sizes (number of observations) after convergence.
 ![NNLS](/images/Polynomial_fitting.png)
 
 How does the size of the sample population (number of observations) affect convergence of this LS update scheme? Running 100 trials of parameter estimation where we vary the sample observation size, we can see that as the number of observations increases the number of iterations needed for convergence decreases:
