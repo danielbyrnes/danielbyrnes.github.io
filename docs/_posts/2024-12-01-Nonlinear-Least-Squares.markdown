@@ -20,14 +20,14 @@ $$
 E = \sum_{i=1}^m r_i^2
 $$
 
-The model parameters can be estimated by taking the partial derivative of the error function with respect to each parameter and setting it to zero:
+The model parameters can be estimated by taking the partial derivative of the error function with respect to each parameter and setting it to zero for each of the $n$ model parameters:
 
 $$
 \frac{\partial E}{ \partial \theta_j} = 2 \sum_i r_i \frac{\partial r_i}{ \partial \theta_j}
 = 0
 $$
 
-for each of the `n` model paremeters. Call $\theta^k$ the current estimate of the model parameters, then we can estimate the model parameters by taking the Taylor polynomial expansion about this current estimate:
+Call $\theta^k$ the current estimate of the model parameters, then we can estimate the model parameters by taking the Taylor polynomial expansion about this current estimate:
 
 $$
 f(x_i, \theta) \approx f(x_i, \theta^k) + \sum_j \frac{\partial f(x_i, \theta^k)}{\partial \theta_j} (\theta_j - \theta_j^k) 

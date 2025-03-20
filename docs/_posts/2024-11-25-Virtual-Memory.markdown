@@ -15,6 +15,6 @@ The OS divides application memory into chunks called `pages`, which typically on
 
 The `MMU` is the *memory management unit*. It is usually implemented as part of the processor chip, and provides the mapping between the logical and physical memory address. The `TLB` is the *Translation Lookaside Buffer*, and is part of the MMU that stores the most recent logical to physical memory addresses. The purpose of this hardware component is to quickly look up a hardware address for pages that are most likely to be queried.
 
-Most information here sourced from this [virtual memory resource][virtual-mem].
+Most information here was sourced from this [virtual memory resource][virtual-mem].
 
 [virtual-mem]: https://www.cs.umd.edu/~meesh/411/CA-online/chapter/virtual-memory-i/index.html

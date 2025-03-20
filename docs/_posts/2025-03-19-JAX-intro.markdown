@@ -181,7 +181,7 @@ Below are the results of the convolution operation:
 *<medium>(Top) Original polar bear figurine image. (Middle) Box blurred image (7x7 kernel). (Bottom) Sharpened image. </medium>*
 
 # Conclusion
-We've seen that `JAX` is an ML framework that optimizes numerical code with JIT and XLA and provides an intuitive autodiff interface, all while offering syntax that is identical to NumPy. This post was just an introduction into some of the basic features of JAX. In the future I will explore more of the functionality. 
+We've seen that `JAX` is an ML framework that optimizes numerical code with JIT and XLA and provides an intuitive autodiff interface, all while offering syntax that is identical to NumPy. This post was just an introduction into some of the basic features of JAX. In the future I will explore more of its functionality. 
 
 [jax]: https://docs.jax.dev/en/latest/quickstart.html
 [xla]: https://openxla.org
