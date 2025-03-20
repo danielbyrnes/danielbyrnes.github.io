@@ -1,0 +1,190 @@
+---
+layout: post
+title:  "JAX: An Introduction"
+date:   2025-03-19 08:30:00 -0500
+categories: jekyll update
+---
+{% include_relative _includes/mathjax.html %}
+
+## JAX: An Introduction
+
+[JAX][jax] is a Python library developed by Google and Nvidia that accelerates machine learning numerical routines while maintaining an interface similar to NumPy. JAX offers Just-in-Time (JIT) compilation, automatic differentiation, and leverages [XLA][xla] (Accelerated Linear Algebra) to compile code for a variety of hardware platforms. 
+
+Here are some high level details about JAX.
+
+# Immutable Variables
+One reason JAX is able to generate optimized code is that it enforces the condition that variables are immutable. This means that we cannot simply update a variable or modify an array in place after declaration. JAX requires that functions be pure, meaning they do not have side effects. In other words, a function cannot modify the global state of the program, and calling a function with the same input will always result in the same output. This is called [functional programming][func], and it enforces some restrictions on how we write JAX code. 
+
+Although JAX arrays are immutable, there is an interface that effectively allows you to modify the content of an array:
+{% highlight Python %}
+key = random.key(32)
+A = jax.random.randint(key, (4,4), minval=1, maxval=10)
+B = jnp.zeros((6,6))
+B = B.at[1:-1,1:-1].set(A)
+{% endhighlight %}
+Under the hood `B.at[1:-1,1:-1].set(A)` is modifying a copy of B.
+
+# Random Number Generation
+Due to the above condition related to pure functions and immutability, pseudorandom number generation (PRNG) in JAX is a little bit different than what we expect in Numpy. JAX wants PRNG to be reproducible, parallelizable, and vectorisable. To support these qualities, the JAX PRNG design requires the user to split a random key each time you want to generate a random number:
+{% highlight Python %}
+from jax import random
+key = random.key(32)
+new_key, subkey = random.split(key) # split new_key next time
+value = random.normal(subkey)
+M = jax.random.randint(new_key, (10,10), minval=0, maxval=20) # Random integer matrix
+{% endhighlight %}
+
+# Autodiff
+Another core feature of JAX is its automatic differentiation (autodiff) capability. Computing gradients is a crittical part of modern ML systems. JAX provides a simple interface for taking the gradient of functions. Here is a little demo of how it's used.  
+{% highlight Python %}
+def F(x, y):
+    return jnp.sin(x) + 2 * jnp.cos(y)
+
+thetas = np.linspace(0, math.pi, 20)
+F_x = jax.grad(F, argnums=0) # Gradient wrt first arg
+F_y = jax.grad(F, argnums=1) # Gradient wrt second arg
+x_grads = [float(F_x(theta, 0.1)) for theta in thetas]
+y_grads = [float(F_y(0.1, theta)) for theta in thetas]
+{% endhighlight %}
+
+# Jaxpr and JIT
+When a JAX function is executed a tracer object is used to record all operations performed on each function argument. The tracers do not record
+side-effects (such as print statements), since JAX code is functionally pure. These trace objects are then used to reconstruct the program in
+Jaxpr, the JAX intermediate representation (IR). XLA is then able to compile the Jaxpr into code that executes very efficiently on the CPU, GPU or TPU. XLA is an ML compiler that provides a bridge for frontend frameworks (JAX, TensorFlow, etc.) to run efficiently across multiple hardware backends (GPUs, ML accelerators, etc.). 
+ 
+
+This post illustrates some basic JAX functionality by accelerating a common ML opertation: [image convolution][kernel].
+
+
+The `jax.jit` decorator is used to JIT compile functions.
+{% highlight Python %}
+@jax.jit
+def execute_kernel(P, F):
+    return jnp.stack([(P[:, :, k] * F).sum() for k in range(P.shape[2])], axis=-1)
+
+def convolution(A, filter, padding=0):
+    convolved = np.zeros(A.shape)
+    filter_size = filter.shape[0]
+
+    if padding > 0:
+        A_padded = np.zeros((A.shape[0] + 2 * padding, A.shape[1] + 2 * padding, A.shape[2]))
+        A_padded[padding:-padding, padding:-padding, :] = A
+        A = A_padded
+    
+    for i in range(A.shape[0] - filter_size + 1):
+        for j in range(A.shape[1] - filter_size + 1):
+            convolved[i,j] = execute_kernel(A[i:i+filter_size, j:j+filter_size, :], filter)
+    return convolved
+{% endhighlight %}
+
+We can examine the Jaxpr of the JIT-ed function:
+{% highlight Python %}
+print(jax.make_jaxpr(execute_kernel)(image_mat[0:3,0:3,:], sharp_filter))
+{% endhighlight %}
+
+```mlir
+{ lambda ; a:u8[3,3,4] b:i32[3,3]. let
+    c:i32[4] = pjit[
+      name=execute_kernel
+      jaxpr={ lambda ; d:u8[3,3,4] e:i32[3,3]. let
+          f:u8[3,3,1] = slice[
+            limit_indices=(3, 3, 1)
+            start_indices=(0, 0, 0)
+            strides=None
+          ] d
+          g:u8[3,3] = squeeze[dimensions=(2,)] f
+          h:i32[3,3] = convert_element_type[new_dtype=int32 weak_type=False] g
+          i:i32[3,3] = mul h e
+          j:i32[] = reduce_sum[axes=(0, 1)] i
+          k:u8[3,3,1] = slice[
+            limit_indices=(3, 3, 2)
+            start_indices=(0, 0, 1)
+            strides=None
+          ] d
+          l:u8[3,3] = squeeze[dimensions=(2,)] k
+          m:i32[3,3] = convert_element_type[new_dtype=int32 weak_type=False] l
+          n:i32[3,3] = mul m e
+          o:i32[] = reduce_sum[axes=(0, 1)] n
+          p:u8[3,3,1] = slice[
+            limit_indices=(3, 3, 3)
+            start_indices=(0, 0, 2)
+            strides=None
+          ] d
+          q:u8[3,3] = squeeze[dimensions=(2,)] p
+          r:i32[3,3] = convert_element_type[new_dtype=int32 weak_type=False] q
+          s:i32[3,3] = mul r e
+          t:i32[] = reduce_sum[axes=(0, 1)] s
+          u:u8[3,3,1] = slice[
+            limit_indices=(3, 3, 4)
+            start_indices=(0, 0, 3)
+            strides=None
+          ] d
+          v:u8[3,3] = squeeze[dimensions=(2,)] u
+          w:i32[3,3] = convert_element_type[new_dtype=int32 weak_type=False] v
+          x:i32[3,3] = mul w e
+          y:i32[] = reduce_sum[axes=(0, 1)] x
+          z:i32[1] = broadcast_in_dim[broadcast_dimensions=() shape=(1,)] j
+          ba:i32[1] = broadcast_in_dim[broadcast_dimensions=() shape=(1,)] o
+          bb:i32[1] = broadcast_in_dim[broadcast_dimensions=() shape=(1,)] t
+          bc:i32[1] = broadcast_in_dim[broadcast_dimensions=() shape=(1,)] y
+          bd:i32[4] = concatenate[dimension=0] z ba bb bc
+        in (bd,) }
+    ] a b
+  in (c,) }
+```
+This is the intermediate representation that XLA uses to optimize the code to run super efficiently on hardware. 
+
+
+Let's test this code on an image of a cute polar bear ([Go U Bears!][bowdoin]). 
+We will apply a sharpening image kernel followed by a box blur kernel.
+{% highlight Python %}
+import jax
+import numpy as np
+import jax.numpy as jnp
+from jax import random
+from PIL import Image
+
+image = Image.open(image_path)
+image_mat = jnp.array(image)
+
+# Sharp image kernel
+sharp_filter = jnp.array([[0,-1,0],
+                          [-1,5,-1],
+                          [0,-1,0]])
+convolved_mat = convolution(image_mat, sharp_filter, padding=1)
+
+# 7x7 Box blur kernel
+blur_filter = (1. / 49) * jnp.array([[1,1,1,1,1,1,1],
+                                    [1,1,1,1,1,1,1],
+                                    [1,1,1,1,1,1,1],
+                                    [1,1,1,1,1,1,1],
+                                    [1,1,1,1,1,1,1],
+                                    [1,1,1,1,1,1,1],
+                                    [1,1,1,1,1,1,1]])
+blurred_mat = convolution(image_mat, blur_filter, padding=3)
+{% endhighlight %}
+
+The polar bear image has dimensions (1498x2078x4). Running on the CPU of my MBP, I'm timing the double for-loop in the `convolution` function
+as follows: 
+```
+1) Image sharpen convolution time: 15 seconds
+2) Image blur convolution time: 14.5 seconds
+```
+
+Without the JIT optimization the convolution operations alone would have taken more than 350 seconds for each image! JAX provides a major speed up.
+Below are the results of the convolution operation:
+![PB](/images/convolution/toy_polar_bear.png)
+
+![BLURPB](/images/convolution/toy_polar_bear_box_blurred.png)
+
+![SHARPPB](/images/convolution/toy_polar_bear_sharpened.png)
+*<medium>(Top) Original polar bear figurine image. (Middle) Box blurred image (7x7 kernel). (Bottom) Sharpened image. </medium>*
+
+# Conclusion
+We've seen that `JAX` is an ML framework that optimizes numerical code with JIT and XLA and provides an intuitive autodiff interface, all while offering syntax that is identical to NumPy. This post was just an introduction into some of the basic features of JAX. In the future I will explore more of the functionality. 
+
+[jax]: https://docs.jax.dev/en/latest/quickstart.html
+[xla]: https://openxla.org
+[func]: https://docs.python.org/3/howto/functional.html
+[kernel]: https://en.wikipedia.org/wiki/Kernel_(image_processing)
+[bowdoin]: https://bowdoinorient.com/2024/02/02/mens-hockey-crushes-colby-in-219th-rivalry-game/
