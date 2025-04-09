@@ -6,7 +6,7 @@ categories: jekyll update
 ---
 {% include_relative _includes/mathjax.html %}
 
-## JAX: An Introduction
+## Overview of JAX 
 
 [JAX][jax] is a Python library developed by Google and Nvidia that accelerates machine learning numerical routines while maintaining an interface similar to NumPy. JAX offers Just-in-Time (JIT) compilation, automatic differentiation, and leverages [XLA][xla] (Accelerated Linear Algebra) to compile code for a variety of hardware platforms. 
 

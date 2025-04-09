@@ -6,7 +6,7 @@ categories: jekyll update
 ---
 {% include_relative _includes/mathjax.html %}
 
-## Numerical Methods Review (Part I)
+## Outline 
 In this post we will review some common numerical methods topics, and provide some Python code snippets. As we've seen previosuly, the [JAX]({% post_url 2025-03-19-JAX-intro %}) framework provides nice autodiff capabilities that we'll take advantage of.
 The outline of topics is as follows:
 * Euler Method
@@ -19,7 +19,7 @@ The outline of topics is as follows:
 This post will cover the first two topics.
 
 # Euler Method
-This is an integration technique. Given a differential equation and initial value condition, this method estimates a function that satisfies both these criteria. More concretely, consider an unknown function $y(t)$ that varies with time. Suppose you only had a differential equation $\dot y(t)$ and some initial value $y(t_0) = y_0$. If there isn't an analytical expression to solve this differential equation, or solving it was cumbersome, then you can use Euler's method to compute an approximate solution.
+This is an integration technique. Given a differential equation and initial value condition, this method estimates a function that satisfies both these criteria. More concretely, consider an unknown function $y(t)$ that varies with time. Suppose you only had a differential equation $\dot y(t)$ and some initial value $y(t_0) = y_0$. If there isn't an analytical expression to solve this differential equation, or solving it is cumbersome, then you can use Euler's method to compute an approximate solution.
 
 The Euler method is an iterative method that consists of creating tangent lines that approximate the shape of a function ($y(t)$ in our example). We can write an expression for the line tangent to the function at the initial value. In this 1-D example this looks like 
 
@@ -127,6 +127,12 @@ And set $x_{k+1} = x_k + h$.
 ![NewtonMinF5](/images/numerical_methods/newtons_method_optimize_F5.png)
 
 *<medium> Figure: Newton's method converging from $x=9.5$ to $x=-0.3685$ in 4 iterations for function $f(x) = e^{\tfrac{1}{3}x} + \tfrac{2}{5} x^2 - 7$.</medium>*
+
+Generalizing this to higher dimensional space just requires using the gradient and Hessian in place of the first and second derivates.
+
+![NewtonOpt3D](/images/numerical_methods/newtons_method_optimize_3d.png)
+
+*<medium> Figure: Newton's method converging for (non-convex) function $f(x,y) = x^2 y^2$ starting from point $[-60,60]$. 54 iterations are required until convergence to $1\mathrm{e}{-8}$ error tolerance. </medium>*
 
 
 [runge-kutta]: https://en.wikipedia.org/wiki/Runge–Kutta_methods

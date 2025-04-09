@@ -6,7 +6,7 @@ categories: jekyll update
 ---
 {% include_relative _includes/mathjax.html %}
 
-## Point Cloud Alignment
+## Overview 
 
 Iterative Closest Point (ICP) is a common algorithm for point cloud alignment. Starting with some initial set of correspondences, each inner loop first estimates an orientation that aligns two point clouds, and then recomputes the correspondences between the point clouds given the new orientation that (hopefully) brings correct correspondences closer together.
 
