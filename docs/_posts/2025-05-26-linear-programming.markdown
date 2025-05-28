@@ -25,7 +25,7 @@ where $A$ is an $n \times m$ integer matrix representing $n$ constraints and $m$
 George Dantzip developed the Simplex method for solving LPs while he was working for the US Air Force.
 The basic idea is to turn the LP constraints into equalities by introducing *slack variables*, which introduces a trivial solution to the problem (the $m$ objective function variables are zero). It turns out that the set of all possible solutions is a convex polytope (potentially unbounded), and the optimal solution (if it exists) is one of its vertices. 
 
-The set of all possible solutions is called the *feasible region*, and a vertex of the polytope is called a *basic feasible solution*. The Simplex method is a systematic process for searching through the polytope vertices to find the optimal solution without having to visit every single vertex. Each iteration of the algorithm performs a *pivot* operation that selects a new vertex of the polytope that increases the objective function.
+The set of all possible solutions is called the *feasible region*, and a vertex of the polytope is called a *basic feasible solution*. The Simplex method is a systematic process for searching through the polytope vertices to find the optimal solution without having to visit every single vertex. Each iteration of the algorithm performs a *pivot* operation that selects a new vertex of the polytope that increases the objective function [(1)][LPS].
 
 Note that the constraints in the LP are all "<=". This is the standard form. If we added ">=" constraints then we could multiply the constraint by $-1$ to flip the equality sign, but then our standard trivial solution (the zero vector) would not feasible (since 0 is not less than a negative number). 
 So we need a different polytope vertex to kickstart the Simplex algorithm. In order to support ">=" constraints we need to add *artificial variables* to the tableau and run Simplex using an auxiliary objective function. This function is just the negative sum of the artificial variables: $-a_1 - \cdots -a_r$, where there are $r$ ">=" constraints in the LP. 
@@ -51,7 +51,17 @@ $$
 The dual problem can provide a different perspective of the same problem, and is sometimes more efficient to solve. We will utilize the dual formulation for solving minimization problems.
 
 ## Forming the Tableau
-formulating the tableau is done as follows. As noted previously, for minimization problems we solve the dual instead of the primal problem
+The (primal problem) tableau is an $n \times m$ matrix defined as 
+
+$$
+\begin{bmatrix}
+A & I & b \\
+-c^T & 0 & 0
+\end{bmatrix}
+$$
+
+The dual tableau is simply the transpose (before adding the slack variables).
+Formulating the tableau is done as follows. As noted previously, for minimization problems we solve the dual instead of the primal problem
 ```c++
 Eigen::MatrixXd SimplexMethod::FormTableau(const Eigen::MatrixXd& CC,
                             const Eigen::VectorXd& cl,
@@ -243,3 +253,4 @@ Several variations and alternatives to the II-Phase Simplex method exist:
 * LP relaxation: relaxes the constraint that varialbes must be integers, and instead allows solutions to contain rational values.
 * branch-and-bound: also uses LP relaxation. Uses tree search with pruning to efficiently explore the (continuous) solution state space.
 
+[LPS]: https://www.cs.cornell.edu/courses/cs6820/2016fa/handouts/splex.pdf 
