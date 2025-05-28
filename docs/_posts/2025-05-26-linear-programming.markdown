@@ -22,16 +22,21 @@ $$
 where $A$ is an $n \times m$ integer matrix representing $n$ constraints and $m$ variables.
 
 ## Simplex Method
-George Dantzip developed the Simplex method for solving LPs while he worked for the US Air Force.
-The basic idea is to turn the constraints into equalities by introducing *slack variables*, which introduces a trivial solution to the problem. It turns out that the set of all possible solutions is convex polytope (potentially unbounded), and the optimal solution (if it exists) is one of its vertices. 
+George Dantzip developed the Simplex method for solving LPs while he was working for the US Air Force.
+The basic idea is to turn the LP constraints into equalities by introducing *slack variables*, which introduces a trivial solution to the problem (the $m$ objective function variables are zero). It turns out that the set of all possible solutions is a convex polytope (potentially unbounded), and the optimal solution (if it exists) is one of its vertices. 
 
-The set of all possible solutions is called the *feasible region*, and a vertex of the polytope is called a *basic feasible solution*. The Simplex method is a systematic process for searching through the polytope vertices to find the optimal solution without having to visit every single vertex. Each iteration of the algorithm performs a *pivot* operation that selects a new vertex of the polytope that increases the objeective function.
+The set of all possible solutions is called the *feasible region*, and a vertex of the polytope is called a *basic feasible solution*. The Simplex method is a systematic process for searching through the polytope vertices to find the optimal solution without having to visit every single vertex. Each iteration of the algorithm performs a *pivot* operation that selects a new vertex of the polytope that increases the objective function.
+
+Note that the constraints in the LP are all "<=". This is the standard form. If we added ">=" constraints then we could multiply the constraint by $-1$ to flip the equality sign, but then our standard trivial solution (the zero vector) would not feasible (since 0 is not less than a negative number). 
+So we need a different polytope vertex to kickstart the Simplex algorithm. In order to support ">=" constraints we need to add *artificial variables* to the tableau and run Simplex using an auxiliary objective function. This function is just the negative sum of the artificial variables: $-a_1 - \cdots -a_r$, where there are $r$ ">=" constraints in the LP. 
+
+Minimizing this auxiliary objective function will ensure that we find a basic feasible solution where all the added artificial variables are 0. Once we have this basic feasible solution, we can replace the cost function in the tableau with the original LP cost and then run Simplex again. This is what wen refer to as the II-Phase Simplex method.
 
 ![LP1](/images/linear_programming_p1.png)
 *<medium>(Fig) Feasible region where the objective function is to maximize $x1 + x2$. The optimum is found at the vertex $(2,3)$ and has value 5. </medium>*
 
 ## Primal vs. Dual Method
-Every LP has a counterpart called the *dual*. There are theoretical guarantees that if the optimum value of the primal LP is finite then the dual will have the same optimum. Using the same variables from the primal LP defined above, we can define the dual optimization problem: 
+Every LP has a counterpart called the *dual form*. There are theoretical guarantees that if the optimum value of the primal LP is finite then the dual will have the same optimum. Using the same variables from the primal LP defined above, we can define the dual optimization problem: 
 
 $$
 \begin{align*}
@@ -43,8 +48,10 @@ $$
 \end{align*}
 $$
 
+The dual problem can provide a different perspective of the same problem, and is sometimes more efficient to solve. We will utilize the dual formulation for solving minimization problems.
+
 ## Forming the Tableau
-formulating the tableau is done as follows. Note that in the case of a minimization problem we solve the dual instead of the primal problem
+formulating the tableau is done as follows. As noted previously, for minimization problems we solve the dual instead of the primal problem
 ```c++
 Eigen::MatrixXd SimplexMethod::FormTableau(const Eigen::MatrixXd& CC,
                             const Eigen::VectorXd& cl,
@@ -86,10 +93,12 @@ Eigen::MatrixXd SimplexMethod::FormTableau(const Eigen::MatrixXd& CC,
 ```
 
 ## Pivoting
-Any feasible solution will have  $m$ of our $n+m$ variables. The goal of the pivoting operation is to replace one of our basic variables with one that is nonbasic such that the objective function increases. 
-More concretely, the pivoting operation consists of selecting a column corresponding to a variable to make basic, and a row corresponding to a nonbasic variable to exit the solution basis.
-After the pivot operation is complete, the new basis should correspond to another extrema (vertex) of the feasible region.
-The code for our `SimplexMethod` class looks as follows.
+Let's introduce some more terminology. A *basic* variable is one that appears as a standard basis vector in the tableau. These variables have non-zero values in the current feasible solution. The remaining $n$ variables are called *nonbasic* variables, and are set to zero in the current feasible solution.
+Any $n+m$ feasible solution will have $n$ positive values. The goal of the pivoting operation is to replace one of our basic variables with one that is nonbasic such that the objective function increases. 
+More concretely, the pivoting operation consists of selecting a column corresponding to a nonbasic variable to make basic, and a row corresponding to a nonbasic variable to exit the solution basis.
+After the pivot operation is complete, the new basis should correspond to another extrema (or vertex) of the feasible region.
+
+The pivoting code in our `SimplexMethod` class looks as follows.
 ```c++
 while (true) {
         // Find the pivot column
@@ -128,7 +137,7 @@ for (uint32_t r = 0; r < tableau.rows(); ++r) {
 
 ```
 ## Optimization Interface
-The interface for setting up the LP should be intuititve, where we can add >= and <= constraints and specify whether the cost function should be maximized or minimized.
+The interface for setting up the LP should be intuititve, where we can add >= and <= constraints and specify whether the cost function should be maximized or minimized:
 ```c++
 Optimizer optimizer;
 optimizer.AddLTConstraint({1, 2}, 8);
@@ -147,9 +156,9 @@ Maximize 1 * x_1 + 1 * x_2
 	3 * x_1 + 2 * x_2 <= 12
 	-1 * x_1 + -3 * x_2 <= -3
 
-###########################################
+############################################################
 (2) Optimized solution: 2 3 0 0 8 ---> optimum @ 5
-###########################################
+############################################################
 ```
 
 Similarly, we can define a minimization problem:
@@ -229,7 +238,8 @@ Minimize -12 * x_1 + -16 * x_2
 ```
 
 ## Alternative Methods to solve LPs
-Several variations and alternatives to the II-phase simplex method exist: 
+Several variations and alternatives to the II-Phase Simplex method exist: 
 * Big-M: adds a cost term to the objective function to drive the artificial variables to zero. 
 * LP relaxation: relaxes the constraint that varialbes must be integers, and instead allows solutions to contain rational values.
-* branch-and-bound: also uses LP relaxation, and a method to efficiently explore (continuous) solution state space.
+* branch-and-bound: also uses LP relaxation. Uses tree search with pruning to efficiently explore the (continuous) solution state space.
+
