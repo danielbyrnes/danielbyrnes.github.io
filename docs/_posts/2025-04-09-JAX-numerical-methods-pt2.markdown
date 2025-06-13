@@ -69,8 +69,8 @@ for example some combination of sinusoidal functions.
 Finally, we could use least squares to estimate the parameters that best model the observations.
 This process is called curve-fitting, and we can use nonlinear optimization methods to estimate our model parameters.
 More concretely, we have some measurement observations $y_t$ and some function we're trying to fit to the data 
-$\hat{y}(t;a)$, where $a$ are the function parameters we would like to estimate. The loss function we'll use for this 
-optimization is $e(t) = \sum_{t} y_t - \hat{y}(t;a)$.
+$\widehat{y}(t;a)$, where $a$ are the function parameters we would like to estimate. The loss function we'll use for this 
+optimization is $e(t) = \sum_{t} y_t - \widehat{y}(t;a)$.
 
 
 In this experiment we use Levenberg-Marquardt and Gradient Descent to fit a curve to the function
@@ -79,9 +79,9 @@ $$
 f(t) = a_1 \exp(-\frac{t}{a_2}) + a_3 t \exp(-\frac{t}{a_4})
 $$
 
-We start by corrupting the truth function values with noise drawn from the distribution $\mathcal{N(0,0.2)}$.
+We start by corrupting the truth function values with noise drawn from the distribution $\mathcal{N}(0,0.2)$.
 This simulates measurement error inherent to observing any real world phenomena. We use these noisy estimates to fit our model.
-These [notes][curve-fitting] were very informative for this implementation.
+These [notes][curve-fitting] were very informative for this implementation. The full implementation of the following code can be found [here][code].
 
 This Python code uses Jax, an library for numerical computation that brings the following major benefits:
  - Automatic differentiation
@@ -265,5 +265,6 @@ Next steps include:
  * Improve the converge criteria used to determine when optimization should stop.
  * Apply LM optimization to fit a model to [NOAA][tides] tidal data, or other scientific phenomena.
 
+[code]: https://github.com/danielbyrnes/Optimization/tree/main/Gradients
 [curve-fitting]: https://people.duke.edu/~hpgavin/lm.pdf
 [tides]: https://tidesandcurrents.noaa.gov/map/index.shtml

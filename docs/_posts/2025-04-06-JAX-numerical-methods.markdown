@@ -13,8 +13,6 @@ The outline of topics is as follows:
 * Newton's Method
 * Gauss-Newton Method
 * Levenberg-Marquardt Algorithm
-* Cholesky Factorization 
-    - Gram-Schmidt
 
 This post will cover the first two topics.
 
