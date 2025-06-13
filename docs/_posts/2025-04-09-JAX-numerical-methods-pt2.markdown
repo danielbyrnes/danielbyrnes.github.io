@@ -37,9 +37,11 @@ $$
 
 where $x_k$ is the current estimate of $x^*$, our desired solution.
 
-if the matrix $f'(x_k)$ is full rank then $f'(x_k)^T f(x_k)$ is invertible, and one could solve for $p$
-$p = - [f'(x_k)^T f(x_k)]^{-1} f'(x_k) f(x_k)$. 
-Recall that the inverted matrix is the psuedo-inverse of $f'(x_k)$ and this update step is the least-squares solution. The solution at each iteration is solved for as $x_{k+1} = x_k + p_k$. Alternatively, one can use line search to further control the update step: $x_{k+1} = x_k + t_k p_k$. The benefit of Gauss-Newton is that we don't need second-order information.
+if the matrix $f'(x_k)$ is full rank then $f'(x_k)^T f(x_k)$ is invertible, and one could solve for $p$:
+
+$$p = - [f'(x_k)^T f'(x_k)]^{-1} f'(x_k)^T f(x_k)$$
+
+Recall that the matrix $(J^TJ)^{-1}J^T$ is the pseudoinverse of the matrix $J$ (in our case $J=f'(x_k)$), and this update step is the least-squares solution. The solution at each iteration is solved for as $x_{k+1} = x_k + p_k$. Alternatively, one can use line search to further control the update step: $x_{k+1} = x_k + t_k p_k$. The benefit of Gauss-Newton is that we don't need second-order information.
 In comparison, Newton's method does require second derivatives, and shows fast convergence around local minimums. This is a trade-off to save on computing/storing the Hessian matrix.
 
 # Levenberg-Marquardt Algorithm
@@ -207,6 +209,7 @@ The initial starting coefficents of the model are generated randomly. We then mi
 The conclusion from this simulation is that LM requires less steps than GD to converge to a solution, and both methods are sensitive to the initial starting condition.
 
 ### Trial 1
+Both LM and GD get pretty close to recovering the ground truth model parameters.
 ![LM_residuals_T1](/images/numerical_methods/LM_residual_errors_T1.png)
 ![LM_manifold_T1](/images/numerical_methods/LM_curve_and_hist_T1.png) 
 ![LM_hist_T1](/images/numerical_methods/LM_trajectory_manifold_T1.png) 
@@ -224,6 +227,7 @@ Final estimate: $[3.91499424, 2.72453666, 2.02070355, 9.94066334]$ <br>
 Convergence in 923 iterations </medium>*
 
 ### Trial 2
+Again, both algorithms converge pretty close to the true model parameters.
 ![LM_residuals_T2](/images/numerical_methods/LM_residual_errors_T2.png) 
 ![LM_manifold_T2](/images/numerical_methods/LM_curve_and_hist_T2.png) 
 ![LM_hist_T2](/images/numerical_methods/LM_trajectory_manifold_T2.png) 
@@ -241,10 +245,12 @@ Final estimate: $[3.91576958, 2.72666121, 2.02038097, 9.94137669]$ <br>
 Convergence in 965 iterations </medium>*
 
 ### Trial 3
+Catastrophic failure. Neither LM nor GD correctly recovers the model parameters
+when the algorithms are initialized from this starting location:
 ![LM_residuals_T3](/images/numerical_methods/LM_residual_errors_T3.png) 
 ![LM_manifold_T3](/images/numerical_methods/LM_curve_and_hist_T3.png) 
 ![LM_hist_T3](/images/numerical_methods/LM_trajectory_manifold_T3.png) 
-*<medium> <b>Figure</b>: Catastrophic failure. Method: Levenberg-Marquardt <br>
+*<medium> <b>Figure</b>: Method: Levenberg-Marquardt <br>
 Initial guess: $[1.6456262, 1.7493442, 0.1221709, 0.30687004]$ <br> 
 Final estimate: $[4.27152967, 29.75058365, -0.24114212, 0.37449351]$ <br>
 Convergence in 4 iterations </medium>*
@@ -256,6 +262,8 @@ I acknowledge that GD would likely perform better with improved selection of the
 
 Next steps include:
  * Add an adaptive learning rate to GD to improve convergence robustness.
- * Apply LM optimization to fit a model to NOAA tidal data, or other scientific phenomena.
+ * Improve the converge criteria used to determine when optimization should stop.
+ * Apply LM optimization to fit a model to [NOAA][tides] tidal data, or other scientific phenomena.
 
-[curve-fitting]: https://people.duke.edu/~hpgavin/lm.pdf 
+[curve-fitting]: https://people.duke.edu/~hpgavin/lm.pdf
+[tides]: https://tidesandcurrents.noaa.gov/map/index.shtml
